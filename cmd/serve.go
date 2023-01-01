@@ -26,6 +26,6 @@ var serveCmd = &cobra.Command{
 			registery,
 			promhttp.HandlerOpts{},
 		))
-		log.Fatal(http.ListenAndServe("0.0.0.0:3030", nil))
+		log.Fatal(http.ListenAndServe("0.0.0.0:3030", err))
 	},
 }
