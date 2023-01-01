@@ -28,6 +28,7 @@ func ErrorGaugeHandler(w http.ResponseWriter, req *http.Request) {
 func main() {
 	prometheus.MustRegister(logmetric.SuccessLogGauge)
 	prometheus.MustRegister(logmetric.FailedLogGauge)
+	prometheus.MustRegister(logmetric.ErrCounter)
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/responses_log", ResponseGaugeHandler)
 	http.HandleFunc("/requests_log", RequestGaugeHandler)

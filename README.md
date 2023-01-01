@@ -1,4 +1,4 @@
-#### ! orginal pkg readme
+#### ! original pkg readme
 # Logprom
 
 Config base prometheus exporter for logs, written in Go.

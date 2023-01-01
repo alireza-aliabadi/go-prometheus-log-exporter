@@ -39,6 +39,10 @@ func ReadFile(path_metric ...string) {
 			logmetric.LogGaugeVec(metricDetail)
 		}
 	// add other metrics here as new case
+	case "error-count":
+		for range t.Lines {
+			logmetric.ErrCounterVec()
+		}
 
 	default:
 		for line := range t.Lines {

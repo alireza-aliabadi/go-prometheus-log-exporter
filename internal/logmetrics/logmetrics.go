@@ -38,3 +38,14 @@ func LogGaugeVec(logInf map[string]string) {
 }
 
 // add other metrics functions
+
+var ErrCounter = prometheus.NewCounter(
+	prometheus.CounterOpts{
+		Name: "Errors accurance counter",
+		Help: "count number of errors",
+	},
+)
+
+func ErrCounterVec() {
+	ErrCounter.Inc()
+}
