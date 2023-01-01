@@ -37,15 +37,17 @@ func LogGaugeVec(logInf map[string]string) {
 	}
 }
 
-// add other metrics functions
+// add other metrics functionsl
 
-var ErrCounter = prometheus.NewCounter(
+var ErrCounter = prometheus.NewCounterVec(
 	prometheus.CounterOpts{
 		Name: "errors_occurrence_counter",
 		Help: "count number of errors",
 	},
+	[]string{"path"},
 )
 
-func ErrCounterVec() {
-	ErrCounter.Inc()
+func ErrCounterVec(logInf map[string]string) {
+	path := logInf["path"]
+	ErrCounter.WithLabelValues(path).Inc()
 }

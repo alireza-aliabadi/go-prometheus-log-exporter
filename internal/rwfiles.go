@@ -40,8 +40,9 @@ func ReadFile(path_metric ...string) {
 		}
 	// add other metrics here as new case
 	case "error-count":
-		for range t.Lines {
-			logmetric.ErrCounterVec()
+		for line := range t.Lines {
+			metricDetail := GetLogInf(line.Text)
+			logmetric.ErrCounterVec(metricDetail)
 		}
 
 	default:

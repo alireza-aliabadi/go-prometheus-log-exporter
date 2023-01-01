@@ -55,3 +55,6 @@ Will be completed soon!
 logs format:
 
     <datetime>|<logger name>|<log level>|<detail>
+detail element format:
+    
+    key:value
