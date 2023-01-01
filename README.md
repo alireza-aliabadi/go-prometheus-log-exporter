@@ -1,3 +1,4 @@
+#### ! orginal pkg readme
 # Logprom
 
 Config base prometheus exporter for logs, written in Go.
@@ -46,3 +47,11 @@ docker run -d --name=logprom \
 
 # Config File
 Will be completed soon!
+
+#### ! additional  information
+
+# Log files exporter
+
+logs format:
+
+    <datetime>|<logger name>|<log level>|<detail>
