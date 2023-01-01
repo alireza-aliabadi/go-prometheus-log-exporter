@@ -22,7 +22,7 @@ func RequestGaugeHandler(w http.ResponseWriter, req *http.Request) {
 	rwfiles.ReadFile(requestLogPath)
 }
 func ErrorGaugeHandler(w http.ResponseWriter, req *http.Request) {
-	rwfiles.ReadFile(errorsLogPath)
+	rwfiles.ReadFile(errorsLogPath, "error-count")
 }
 
 func main() {
