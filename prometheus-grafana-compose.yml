@@ -18,6 +18,11 @@ services:
     network_mode: host
     restart: unless-stopped
     container_name: jahad_grafana
+    environment:
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/grafana-preconfig.json
+    volumes:
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
 #    ports:
 #      - "3000:3000"
 
