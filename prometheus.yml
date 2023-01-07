@@ -8,4 +8,4 @@ scrape_configs:
       - targets: ["localhost:9090"]
   - job_name: logging
     static_configs:
-      - targets: ["localhost:3030"]
+      - targets: ["go-exporter:3030"]

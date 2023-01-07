@@ -21,7 +21,10 @@ func GetLogInf(log string) map[string]string {
 
 func ReadFile(path_metric ...string) {
 	path := path_metric[0]
-	metric := path_metric[1]
+	metric := "login" // default metric
+	if len(path_metric) == 2 {
+		metric = path_metric[1]
+	}
 	if len(path_metric) > 2 {
 		log.Fatal("extra parameters are given, only needed prameters are: path, metric")
 	}

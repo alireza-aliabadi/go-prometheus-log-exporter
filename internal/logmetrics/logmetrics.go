@@ -1,7 +1,6 @@
 package logmetric
 
 import (
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -26,13 +25,9 @@ func LogGaugeVec(logInf map[string]string) {
 	failedLog := FailedLogGauge
 	logStatus := logInf["status"]
 	logPath := logInf["path"]
-	fmt.Println("log status --> ", logStatus)
-	fmt.Println("log path --> ", logPath)
 	if logStatus == "200" {
-		fmt.Println("success login --->")
 		successLog.WithLabelValues(logPath).Inc()
 	} else {
-		fmt.Println("failed login  ---->")
 		failedLog.WithLabelValues(logPath).Inc()
 	}
 }

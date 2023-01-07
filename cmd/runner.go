@@ -7,6 +7,7 @@ import (
 	rwfiles "logprom/internal"
 	"logprom/internal/env"
 	"net/http"
+	"time"
 )
 
 var logPath = env.GetLogPath()
@@ -39,9 +40,16 @@ var rootCmd = &cobra.Command{
 	Use:   "call log readers",
 	Short: "call logs exporter function for automation",
 	Run: func(cmd *cobra.Command, args []string) {
-		for _, val := range args {
-			methodCaller(val)
-		}
+		go func() {
+			for {
+				args := env.GetLogName()
+				fmt.Println("args: ", args)
+				for _, val := range args {
+					methodCaller(val)
+				}
+				time.Sleep(2 * time.Second)
+			}
+		}()
 		log.Fatal(http.ListenAndServe(":3030", nil))
 	},
 }
