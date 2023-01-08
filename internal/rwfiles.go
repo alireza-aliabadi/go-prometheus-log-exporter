@@ -21,6 +21,7 @@ func GetLogInf(log string) map[string]string {
 
 func ReadFile(path_metric ...string) {
 	path := path_metric[0]
+	fmt.Println("inside read file function <path> ", path)
 	metric := "login" // default metric
 	if len(path_metric) == 2 {
 		metric = path_metric[1]
@@ -37,7 +38,6 @@ func ReadFile(path_metric ...string) {
 	switch metric {
 	case "login":
 		for line := range t.Lines {
-			fmt.Println(line.Text)
 			metricDetail := GetLogInf(line.Text)
 			logmetric.LogGaugeVec(metricDetail)
 		}
