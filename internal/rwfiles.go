@@ -31,7 +31,12 @@ func ReadFile(path_metric ...string) {
 	}
 	t, err := tail.TailFile(path, tail.Config{
 		Follow: true,
-		ReOpen: true})
+		Location: &tail.SeekInfo{
+			Offset: int64(0),
+			Whence: 2,
+		},
+		ReOpen: true,
+	})
 	if err != nil {
 		log.Fatal("file tail error: -->", err)
 	}

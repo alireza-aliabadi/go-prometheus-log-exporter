@@ -2,16 +2,17 @@ version: "3.8"
 
 services:
   go-exporter:
-    image: prometheus-log-go-exporter:1.0
+    image: jahad_golang:1.0
     pull_policy: if_not_present
     container_name: jahad_go_exporter
     restart: unless-stopped
     volumes:
-      - ../logs:/app/logs
+      - ../logs:/logs
       - .:/app
     ports:
       - "3030:3030"
-    command: sh -c "ls"
+    tty: true
+    command: go run main.go
   prometheus-go-exporter:
     image: prom/prometheus:latest
     pull_policy: if_not_present
