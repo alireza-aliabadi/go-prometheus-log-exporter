@@ -3,6 +3,7 @@ package rwfiles
 import (
 	"fmt"
 	"github.com/hpcloud/tail"
+	"io"
 	"log"
 	logmetric "logprom/internal/logmetrics"
 	"strings"
@@ -21,7 +22,6 @@ func GetLogInf(log string) map[string]string {
 
 func ReadFile(path_metric ...string) {
 	path := path_metric[0]
-	fmt.Println("inside read file function <path> ", path)
 	metric := "login" // default metric
 	if len(path_metric) == 2 {
 		metric = path_metric[1]
@@ -33,7 +33,7 @@ func ReadFile(path_metric ...string) {
 		Follow: true,
 		Location: &tail.SeekInfo{
 			Offset: int64(0),
-			Whence: 2,
+			Whence: io.SeekEnd,
 		},
 		ReOpen: true,
 	})
@@ -45,6 +45,7 @@ func ReadFile(path_metric ...string) {
 		for line := range t.Lines {
 			metricDetail := GetLogInf(line.Text)
 			logmetric.LogGaugeVec(metricDetail)
+			logmetric.ResponseTimeGauge(metricDetail)
 		}
 	// add other metrics here as new case
 	case "error-count":

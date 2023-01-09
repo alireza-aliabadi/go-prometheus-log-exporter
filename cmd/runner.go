@@ -25,14 +25,25 @@ func ErrorGaugeHandler() {
 	rwfiles.ReadFile(errorsLogPath, "error-count")
 }
 
+var methodFlag = map[string]bool{}
+
 func methodCaller(arg string) {
 	switch arg {
 	case "responses":
-		go ResponseGaugeHandler()
+		if ok, exists := methodFlag["responses"]; !ok || !exists {
+			go ResponseGaugeHandler()
+			methodFlag["responses"] = true
+		}
 	case "requests":
-		go RequestGaugeHandler()
+		if ok, exists := methodFlag["requests"]; !ok || !exists {
+			go RequestGaugeHandler()
+			methodFlag["requests"] = true
+		}
 	case "errors":
-		go ErrorGaugeHandler()
+		if ok, exists := methodFlag["errors"]; !ok || !exists {
+			go ErrorGaugeHandler()
+			methodFlag["errors"] = true
+		}
 	}
 }
 
@@ -43,7 +54,6 @@ var rootCmd = &cobra.Command{
 		go func() {
 			for {
 				args := env.GetLogName()
-				fmt.Println("args: ", args)
 				for _, val := range args {
 					methodCaller(val)
 				}

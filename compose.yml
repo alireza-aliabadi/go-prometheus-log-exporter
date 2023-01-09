@@ -28,7 +28,6 @@ services:
   grafana-go-exporter:
     image: grafana/grafana:latest
     pull_policy: if_not_present
-    network_mode: host
     restart: unless-stopped
     container_name: jahad_grafana
     environment:
@@ -36,6 +35,8 @@ services:
     volumes:
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "3000:3000"
     depends_on:
       - prometheus-go-exporter
 
