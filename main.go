@@ -24,8 +24,7 @@ import (
 //}
 
 func main() {
-	prometheus.MustRegister(logmetric.SuccessLogGauge)
-	prometheus.MustRegister(logmetric.FailedLogGauge)
+	prometheus.MustRegister(logmetric.LogGauge)
 	prometheus.MustRegister(logmetric.ErrCounter)
 	prometheus.MustRegister(logmetric.ResptimeGaugeVec)
 	http.Handle("/metrics", promhttp.Handler())

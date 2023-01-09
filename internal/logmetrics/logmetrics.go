@@ -6,33 +6,19 @@ import (
 	"strconv"
 )
 
-var SuccessLogGauge = prometheus.NewGaugeVec(
+var LogGauge = prometheus.NewGaugeVec(
 	prometheus.GaugeOpts{
-		Name: "success_login_gauge",
-		Help: "number of successful login attempts",
+		Name: "log_gauge",
+		Help: "number of responses",
 	},
-	[]string{"path", "status", "resp_time"},
-)
-
-var FailedLogGauge = prometheus.NewGaugeVec(
-	prometheus.GaugeOpts{
-		Name: "failed_login_gauge",
-		Help: "number of unsuccessful login attempts",
-	},
-	[]string{"path", "status", "resp_time"},
+	[]string{"path", "status"},
 )
 
 func LogGaugeVec(logInf map[string]string) {
-	successLog := SuccessLogGauge
-	failedLog := FailedLogGauge
+	Log := LogGauge
 	logStatus := logInf["status"]
 	logPath := logInf["path"]
-	logRespTime := logInf["response_time"]
-	if logStatus == "200" {
-		successLog.WithLabelValues(logPath, logStatus, logRespTime).Inc()
-	} else {
-		failedLog.WithLabelValues(logPath, logStatus, logRespTime).Inc()
-	}
+	Log.WithLabelValues(logPath, logStatus).Inc()
 }
 
 // add other metrics functionsl
@@ -50,6 +36,7 @@ func ResponseTimeGauge(logInf map[string]string) {
 	logResponseTime, err := strconv.ParseFloat(logInf["response_time"], 64)
 	if err != nil {
 		log.Fatal("couldn't parse time string into float64")
+		return
 	}
 	respTimeGauge := ResptimeGaugeVec
 	respTimeGauge.WithLabelValues(logPath).Set(logResponseTime)
