@@ -1,7 +1,6 @@
 package rwfiles
 
 import (
-	"fmt"
 	"github.com/hpcloud/tail"
 	"io"
 	"log"
@@ -41,7 +40,7 @@ func ReadFile(path_metric ...string) {
 		log.Fatal("file tail error: -->", err)
 	}
 	switch metric {
-	case "login":
+	case "log":
 		for line := range t.Lines {
 			metricDetail := GetLogInf(line.Text)
 			logmetric.LogGaugeVec(metricDetail)
@@ -56,7 +55,6 @@ func ReadFile(path_metric ...string) {
 
 	default:
 		for line := range t.Lines {
-			fmt.Println(line.Text)
 			metricDetail := GetLogInf(line.Text)
 			logmetric.LogGaugeVec(metricDetail)
 		}

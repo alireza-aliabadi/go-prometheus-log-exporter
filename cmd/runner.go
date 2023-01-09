@@ -16,7 +16,7 @@ var requestLogPath = fmt.Sprintf("%s/requests.log", logPath)
 var errorsLogPath = fmt.Sprintf("%s/errors.log", logPath)
 
 func ResponseGaugeHandler() {
-	rwfiles.ReadFile(responseLogPath, "login")
+	rwfiles.ReadFile(responseLogPath, "log")
 }
 func RequestGaugeHandler() {
 	rwfiles.ReadFile(requestLogPath)
