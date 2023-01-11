@@ -36,7 +36,7 @@ services:
       - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./grafana/datasources:/etc/grafana/provisioning/datasources
     ports:
-      - "3000:3000"
+      - "3300:3000"
     depends_on:
       - prometheus-go-exporter
 

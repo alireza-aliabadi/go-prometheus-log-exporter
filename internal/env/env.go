@@ -18,11 +18,20 @@ func GetLogName() []string {
 }
 
 func GetLogPath() string {
-	err := godotenv.Load(".env")
+	err := godotenv.Overload(".env")
 	if err != nil {
 		log.Fatal("can't load .env file because:", err)
 	}
 
 	logs_path := os.Getenv("LOGS_PATH")
 	return logs_path
+}
+
+func GetRegexPattern() string {
+	err := godotenv.Overload(".env")
+	if err != nil {
+		log.Fatal("can't load .env file because:", err)
+	}
+	regexPattern := os.Getenv("REGEX")
+	return regexPattern
 }

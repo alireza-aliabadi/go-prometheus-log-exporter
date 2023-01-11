@@ -5,4 +5,7 @@ logs format:
     <datetime>|<logger name>|<log level>|<detail>
 detail element format:
     
-    key:value
+    key1:value1|key2:value2...
+allowed metric types:
+
+- Gauge

@@ -1,10 +1,8 @@
 package main
 
 import (
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"logprom/cmd"
-	logmetric "logprom/internal/logmetrics"
 	"net/http"
 )
 
@@ -24,9 +22,6 @@ import (
 //}
 
 func main() {
-	prometheus.MustRegister(logmetric.LogGauge)
-	prometheus.MustRegister(logmetric.ErrCounter)
-	prometheus.MustRegister(logmetric.ResptimeGaugeVec)
 	http.Handle("/metrics", promhttp.Handler())
 	//http.HandleFunc("/responses_log", ResponseGaugeHandler)
 	//http.HandleFunc("/requests_log", RequestGaugeHandler)
