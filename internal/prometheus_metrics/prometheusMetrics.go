@@ -3,7 +3,6 @@ package prometheus_metrics
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
-	"strconv"
 	"strings"
 )
 
@@ -12,28 +11,39 @@ type metrics interface {
 	createMetric()
 }
 
-var metricsNames = map[string]struct{}{}
+var metricsList = map[string]map[string]string{}
 
-func createMetric(metricName string, metricType string, metricValue string, metricLabels []string, labelsValue []string) {
-	switch metricType {
-	case "guage":
-		metric := prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Name: metricName,
-			},
-			metricLabels,
-		)
-		metricSetValue, err := strconv.ParseFloat(metricValue, 64)
+func createMetric(metricList map[string]map[string]string, metricLabelsList []string, labelsValues []string) {
+	for metricName := range metricList {
+		metric, err := prometheus.GaugeVec.GetMetricWithLabelValues(labelsValues...)
 		if err != nil {
-			log.Fatal("couldn't parse metric value into float")
+			log.Fatal("failed to get metric --> ", err)
 		}
-		prometheus.MustRegister(metric)
-
-		metric.WithLabelValues("", "").Set(metricSetValue)
+		if metric == nil {
+			switch metricList[metricName]["type"] {
+			case "gauge":
+				prometheus.NewGaugeVec(
+					prometheus.GaugeOpts{
+						Name: metricName,
+					},
+					metricLabelsList,
+				)
+			case "counter":
+				prometheus.NewCounterVec(
+					prometheus.CounterOpts{
+						Name: metricName,
+					},
+					metricLabelsList,
+				)
+				// add other arbitary metric types here
+			}
+		}
 	}
 }
 
 func InitMetric(metrics map[string]string) {
+	metricLabels := []string{}
+	labelsValue := []string{}
 	for name := range metrics {
 		inf := strings.Split(name, "_")
 		switch inf[0] {
@@ -41,10 +51,22 @@ func InitMetric(metrics map[string]string) {
 			metricName := inf[1]
 			metricType := inf[2]
 			metricValue := metrics[name]
-			if _, exist := metricsNames[metricName]; !exist {
-				createMetric(metricName, metricType, metricValue)
+			if _, exist := metricsList[metricName]; !exist {
+				metricsList[metricName] = map[string]string{
+					"value": metricValue,
+					"type":  metricType,
+				}
+			} else {
+				metricsList[metricName]["value"] = metricValue
 			}
+		case "L":
+			metricName := inf[1]
+			labelName := inf[2]
+			labelValue := metrics[name]
+			metricLabels = append(metricLabels, labelName)
+			labelsValue = append(labelsValue, labelValue)
+			metricsList[metricName][labelName] = labelValue
 		}
-		metricName := metricInf[1]
 	}
+	createMetric(metricsList, metricLabels, labelsValue)
 }
