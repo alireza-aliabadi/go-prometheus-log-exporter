@@ -23,8 +23,8 @@ func GetLogPath() string {
 		log.Fatal("can't load .env file because:", err)
 	}
 
-	logs_path := os.Getenv("LOGS_PATH")
-	return logs_path
+	logsPath := os.Getenv("LOGS_PATH")
+	return logsPath
 }
 
 func GetRegexPattern() string {

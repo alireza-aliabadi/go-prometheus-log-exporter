@@ -4,9 +4,14 @@ import (
 	"github.com/hpcloud/tail"
 	"io"
 	"log"
-	logmetric "logprom/internal/logmetrics"
+	//logmetric "logprom/internal/logmetrics"
+	"logprom/internal/env"
+	"logprom/internal/prometheus_metrics"
+	"logprom/internal/regex_extractor"
 	"strings"
 )
+
+var regexPattern = env.GetRegexPattern()
 
 func GetLogInf(log string) map[string]string {
 	resultMap := map[string]string{}
@@ -19,13 +24,13 @@ func GetLogInf(log string) map[string]string {
 	return resultMap
 }
 
-func ReadFile(path_metric ...string) {
-	path := path_metric[0]
+func ReadFile(pathMetric ...string) {
+	path := pathMetric[0]
 	metric := "login" // default metric
-	if len(path_metric) == 2 {
-		metric = path_metric[1]
+	if len(pathMetric) == 2 {
+		metric = pathMetric[1]
 	}
-	if len(path_metric) > 2 {
+	if len(pathMetric) > 2 {
 		log.Fatal("extra parameters are given, only needed prameters are: path, metric")
 	}
 	t, err := tail.TailFile(path, tail.Config{
@@ -42,21 +47,27 @@ func ReadFile(path_metric ...string) {
 	switch metric {
 	case "log":
 		for line := range t.Lines {
-			metricDetail := GetLogInf(line.Text)
-			logmetric.LogGaugeVec(metricDetail)
-			logmetric.ResponseTimeGauge(metricDetail)
+			metrics := rgx_extract.FetchLabels(regexPattern, line.Text)
+			prometheus_metrics.InitMetric(metrics)
+			//metricDetail := GetLogInf(line.Text)
+			//logmetric.LogGaugeVec(metricDetail)
+			//logmetric.ResponseTimeGauge(metricDetail)
 		}
 	// add other metrics here as new case
 	case "error-count":
 		for line := range t.Lines {
-			metricDetail := GetLogInf(line.Text)
-			logmetric.ErrCounterVec(metricDetail)
+			metrics := rgx_extract.FetchLabels(regexPattern, line.Text)
+			prometheus_metrics.InitMetric(metrics)
+			//metricDetail := GetLogInf(line.Text)
+			//logmetric.ErrCounterVec(metricDetail)
 		}
 
 	default:
 		for line := range t.Lines {
-			metricDetail := GetLogInf(line.Text)
-			logmetric.LogGaugeVec(metricDetail)
+			metrics := rgx_extract.FetchLabels(regexPattern, line.Text)
+			prometheus_metrics.InitMetric(metrics)
+			//metricDetail := GetLogInf(line.Text)
+			//logmetric.LogGaugeVec(metricDetail)
 		}
 	}
 }
