@@ -2,10 +2,13 @@ package env
 
 import (
 	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 	"log"
 	"os"
 	"strings"
 )
+
+// --------------------------- for using env file -------------------------
 
 func GetLogName() []string {
 	err := godotenv.Overload(".env")
@@ -34,4 +37,34 @@ func GetRegexPattern() string {
 	}
 	regexPattern := os.Getenv("REGEX")
 	return regexPattern
+}
+
+// ------------------------------- for using env yaml file ---------------------------
+
+type logConf struct {
+	Name  string
+	File  string
+	Regex string
+}
+
+type Conf struct {
+	Logs  []string
+	Confs []logConf
+}
+
+var c Conf
+
+func GetEnvValues() *Conf {
+	viper.SetConfigName("env.yml")
+	viper.AddConfigPath("./")
+	viper.SetConfigType("yaml")
+	viper.AutomaticEnv()
+	if err := viper.ReadInConfig(); err != nil {
+		log.Fatal("viper couldn't read env.yml file: ", err)
+	}
+	err := viper.Unmarshal(&c)
+	if err != nil {
+		log.Fatal("couldn't parse yaml confs: ", err)
+	}
+	return &c
 }

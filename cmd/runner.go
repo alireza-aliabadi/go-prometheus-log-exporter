@@ -10,38 +10,34 @@ import (
 	"time"
 )
 
-var logPath = env.GetLogPath()
-var responseLogPath = fmt.Sprintf("%s/responses.log", logPath)
-var requestLogPath = fmt.Sprintf("%s/requests.log", logPath)
-var errorsLogPath = fmt.Sprintf("%s/errors.log", logPath)
-
-func ResponseGaugeHandler() {
-	rwfiles.ReadFile(responseLogPath, "log")
+func ResponseGaugeHandler(path string, regexPattern string) {
+	rwfiles.ReadFile(path, "log", regexPattern)
 }
-func RequestGaugeHandler() {
-	rwfiles.ReadFile(requestLogPath)
+func RequestGaugeHandler(path string, regexPattern string) {
+	rwfiles.ReadFile(path, "", regexPattern)
 }
-func ErrorGaugeHandler() {
-	rwfiles.ReadFile(errorsLogPath, "error-count")
+func ErrorGaugeHandler(path string, regexPattern string) {
+	rwfiles.ReadFile(path, "error-count", regexPattern)
 }
 
 var methodFlag = map[string]bool{}
 
-func methodCaller(arg string) {
+func methodCaller(arg string, path string, regexPattern string) {
+	fmt.Println(" --> inside method caller \n", arg, path, "\n", regexPattern)
 	switch arg {
-	case "responses":
-		if ok, exists := methodFlag["responses"]; !ok || !exists {
-			go ResponseGaugeHandler()
-			methodFlag["responses"] = true
+	case "response":
+		if ok, exists := methodFlag["response"]; !ok || !exists {
+			go ResponseGaugeHandler(path, regexPattern)
+			methodFlag["response"] = true
 		}
-	case "requests":
-		if ok, exists := methodFlag["requests"]; !ok || !exists {
-			go RequestGaugeHandler()
-			methodFlag["requests"] = true
+	case "request":
+		if ok, exists := methodFlag["request"]; !ok || !exists {
+			go RequestGaugeHandler(path, regexPattern)
+			methodFlag["request"] = true
 		}
-	case "errors":
-		if ok, exists := methodFlag["errors"]; !ok || !exists {
-			go ErrorGaugeHandler()
+	case "error":
+		if ok, exists := methodFlag["error"]; !ok || !exists {
+			go ErrorGaugeHandler(path, regexPattern)
 			methodFlag["errors"] = true
 		}
 	}
@@ -52,10 +48,20 @@ var rootCmd = &cobra.Command{
 	Short: "call logs exporter function for automation",
 	Run: func(cmd *cobra.Command, args []string) {
 		go func() {
-			for {
-				args := env.GetLogName()
-				for _, val := range args {
-					methodCaller(val)
+			//for {
+			//	args := env.GetLogName()
+			//	for _, val := range args {
+			//		methodCaller(val, path, regex)
+			//	}
+			//	time.Sleep(2 * time.Second)
+			//}
+			envInf := env.GetEnvValues()
+			fmt.Println(envInf.Logs, "\n", envInf.Confs)
+			for _, requiredLog := range envInf.Logs {
+				for _, logConfig := range envInf.Confs {
+					if requiredLog == logConfig.Name {
+						methodCaller(requiredLog, logConfig.File, logConfig.Regex)
+					}
 				}
 				time.Sleep(2 * time.Second)
 			}

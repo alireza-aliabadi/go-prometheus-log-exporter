@@ -1,7 +1,6 @@
 package prometheus_metrics
 
 import (
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"strconv"
@@ -15,7 +14,17 @@ type metric struct {
 	labelsvalues []string
 }
 
-func pushMetricTOPrometheus(metricList map[string]metric) {
+func (m *metric) UpdateLabels(label string, value string) {
+	m.metricLabels = append(m.metricLabels, label)
+	m.labelsvalues = append(m.labelsvalues, value)
+}
+
+func (m *metric) addOrphans(labels []string, values []string) {
+	m.metricLabels = append(m.metricLabels, labels...)
+	m.labelsvalues = append(m.labelsvalues, values...)
+}
+
+func pushMetricToPrometheus(metricList map[string]*metric) {
 	for metricName := range metricList {
 		switch metricList[metricName].metricType {
 		case "gauge":
@@ -25,12 +34,12 @@ func pushMetricTOPrometheus(metricList map[string]metric) {
 				},
 				metricList[metricName].metricLabels,
 			)
-			prometheus.MustRegister(prometheusMetric)
 			parsingMetricvalue, err := strconv.ParseFloat(metricList[metricName].metricValue, 64)
 			if err != nil {
 				log.Fatal("couldn't parse metric value into float", err)
 			}
 			prometheusMetric.WithLabelValues(metricList[metricName].labelsvalues...).Set(parsingMetricvalue)
+			prometheus.MustRegister(prometheusMetric)
 		case "counter":
 			prometheusMetric := prometheus.NewCounterVec(
 				prometheus.CounterOpts{
@@ -38,7 +47,6 @@ func pushMetricTOPrometheus(metricList map[string]metric) {
 				},
 				metricList[metricName].metricLabels,
 			)
-			prometheus.MustRegister(prometheusMetric)
 			metricValue := metricList[metricName].metricValue
 			parsingMetricvalue, err := strconv.ParseFloat(metricValue, 64)
 			if metricValue != "" && err != nil {
@@ -48,6 +56,7 @@ func pushMetricTOPrometheus(metricList map[string]metric) {
 			} else {
 				prometheusMetric.WithLabelValues(metricList[metricName].labelsvalues...).Add(parsingMetricvalue)
 			}
+			prometheus.MustRegister(prometheusMetric)
 			// add other arbitary metric types here
 		default:
 			prometheusMetric := prometheus.NewGaugeVec(
@@ -60,19 +69,18 @@ func pushMetricTOPrometheus(metricList map[string]metric) {
 			if err != nil {
 				log.Fatal("couldn't parse metric value into float", err)
 			}
-			prometheus.MustRegister(prometheusMetric)
 			prometheusMetric.WithLabelValues(metricList[metricName].labelsvalues...).Set(parsingMetricvalue)
+			prometheus.MustRegister(prometheusMetric)
 		}
 	}
 }
 
 func InitMetric(metrics map[string]string) {
-	fmt.Println("init metric recieved metrics --> ", metrics)
-	metricsList := map[string]metric{}
+	metricsList := map[string]*metric{}
+	orphanLabels := []string{}
+	orphanLabelsValues := []string{}
 	for name := range metrics {
-		fmt.Println("inside metrics range --> ", name)
 		inf := strings.Split(name, "_")
-		fmt.Println("metric seperated inf --> ", inf, inf[0])
 		switch inf[0] {
 		case "M":
 			metricName := inf[1]
@@ -80,25 +88,37 @@ func InitMetric(metrics map[string]string) {
 			valueOfMetric := metrics[name]
 			if _, exist := metricsList[metricName]; !exist || metricsList[metricName].metricType != typeOfMetric {
 				// create metric in this section
-				metricsList[metricName] = metric{
+				metricsList[metricName] = &metric{
 					metricValue: valueOfMetric,
 					metricType:  typeOfMetric,
+				}
+				if len(orphanLabels) >= 1 {
+					m := metricsList[metricName]
+					m.addOrphans(orphanLabels, orphanLabelsValues)
+					orphanLabels = nil
+					orphanLabelsValues = nil
 				}
 			} else {
 				// update value of metric
 				oldMetric := metricsList[metricName]
 				oldMetric.metricValue = valueOfMetric
+				if len(orphanLabels) >= 1 {
+					oldMetric.addOrphans(orphanLabels, orphanLabelsValues)
+					orphanLabels = nil
+					orphanLabelsValues = nil
+				}
 			}
 		case "L":
 			metricName := inf[1]
 			labelName := inf[2]
 			labelValue := metrics[name]
-			labelsList := metricsList[metricName].metricLabels
-			labelsValue := metricsList[metricName].labelsvalues
-			labelsList = append(labelsList, labelName)
-			labelsValue = append(labelsValue, labelValue)
+			if val, ok := metricsList[metricName]; ok {
+				val.UpdateLabels(labelName, labelValue)
+			} else {
+				orphanLabels = append(orphanLabels, labelName)
+				orphanLabelsValues = append(orphanLabelsValues, labelValue)
+			}
 		}
 	}
-	fmt.Println("metrics list --> ", metricsList)
-	pushMetricTOPrometheus(metricsList)
+	pushMetricToPrometheus(metricsList)
 }
