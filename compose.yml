@@ -11,12 +11,10 @@ services:
       - .:/app
     ports:
       - "3030:3030"
-    tty: true
     command: go run main.go
   prometheus-go-exporter:
     image: prom/prometheus:v2.41.0
     pull_policy: if_not_present
-    restart: unless-stopped
     container_name: jahad_prometheus
     ports:
       - "9090:9090"

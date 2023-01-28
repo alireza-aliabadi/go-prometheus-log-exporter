@@ -1,6 +1,7 @@
 package prometheus_metrics
 
 import (
+	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"strconv"
@@ -15,13 +16,33 @@ type metric struct {
 }
 
 func (m *metric) UpdateLabels(label string, value string) {
+	for indx, metricLabel := range m.metricLabels {
+		if metricLabel == label {
+			m.labelsvalues[indx] = value
+			return
+		}
+	}
 	m.metricLabels = append(m.metricLabels, label)
 	m.labelsvalues = append(m.labelsvalues, value)
 }
 
 func (m *metric) addOrphans(labels []string, values []string) {
-	m.metricLabels = append(m.metricLabels, labels...)
-	m.labelsvalues = append(m.labelsvalues, values...)
+	for indx, metricLabel := range m.metricLabels {
+		tempLabel := ""
+		tempValue := ""
+		for labelsIndx, label := range labels {
+			tempLabel = label
+			tempValue = values[labelsIndx]
+			if metricLabel == tempLabel {
+				m.labelsvalues[indx] = tempValue
+				continue
+			}
+		}
+		m.metricLabels = append(m.metricLabels, tempLabel)
+		m.labelsvalues = append(m.labelsvalues, tempValue)
+	}
+	fmt.Println("metric labels in orphans func ---> \n", m.metricLabels)
+	fmt.Println("labels values orphans func --> \n", m.labelsvalues)
 }
 
 func pushMetricToPrometheus(metricList map[string]*metric) {
@@ -75,8 +96,9 @@ func pushMetricToPrometheus(metricList map[string]*metric) {
 	}
 }
 
+var metricsList = map[string]*metric{}
+
 func InitMetric(metrics map[string]string) {
-	metricsList := map[string]*metric{}
 	orphanLabels := []string{}
 	orphanLabelsValues := []string{}
 	for name := range metrics {
@@ -86,6 +108,7 @@ func InitMetric(metrics map[string]string) {
 			metricName := inf[1]
 			typeOfMetric := inf[2]
 			valueOfMetric := metrics[name]
+			fmt.Println("check prometheus metric existence --> ", metricsList)
 			if _, exist := metricsList[metricName]; !exist || metricsList[metricName].metricType != typeOfMetric {
 				// create metric in this section
 				metricsList[metricName] = &metric{

@@ -23,7 +23,6 @@ func ErrorGaugeHandler(path string, regexPattern string) {
 var methodFlag = map[string]bool{}
 
 func methodCaller(arg string, path string, regexPattern string) {
-	fmt.Println(" --> inside method caller \n", arg, path, "\n", regexPattern)
 	switch arg {
 	case "response":
 		if ok, exists := methodFlag["response"]; !ok || !exists {
@@ -61,6 +60,7 @@ var rootCmd = &cobra.Command{
 				for _, logConfig := range envInf.Confs {
 					if requiredLog == logConfig.Name {
 						methodCaller(requiredLog, logConfig.File, logConfig.Regex)
+						continue
 					}
 				}
 				time.Sleep(2 * time.Second)
