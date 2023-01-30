@@ -1,7 +1,6 @@
 package rwfiles
 
 import (
-	"fmt"
 	"github.com/hpcloud/tail"
 	"io"
 	"log"
@@ -23,9 +22,9 @@ func GetLogInf(log string) map[string]string {
 }
 
 func ReadFile(pathMetric ...string) {
-	fmt.Println(pathMetric[0], pathMetric[1], pathMetric[2])
 	path := pathMetric[0]
 	metric := pathMetric[1]
+	registredMetrics := rgx_extract.FetchGroups(pathMetric[2])
 	if metric == "" {
 		metric = "login" // default metric
 	}
@@ -47,7 +46,7 @@ func ReadFile(pathMetric ...string) {
 	case "log":
 		for line := range t.Lines {
 			metrics := rgx_extract.FetchLabels(pathMetric[2], line.Text)
-			prometheus_metrics.InitMetric(metrics)
+			prometheus_metrics.UpdateMetric(metrics, registredMetrics)
 			//metricDetail := GetLogInf(line.Text)
 			//logmetric.LogGaugeVec(metricDetail)
 			//logmetric.ResponseTimeGauge(metricDetail)
@@ -56,7 +55,7 @@ func ReadFile(pathMetric ...string) {
 	case "error-count":
 		for line := range t.Lines {
 			metrics := rgx_extract.FetchLabels(pathMetric[2], line.Text)
-			prometheus_metrics.InitMetric(metrics)
+			prometheus_metrics.UpdateMetric(metrics, registredMetrics)
 			//metricDetail := GetLogInf(line.Text)
 			//logmetric.ErrCounterVec(metricDetail)
 		}
@@ -64,7 +63,7 @@ func ReadFile(pathMetric ...string) {
 	default:
 		for line := range t.Lines {
 			metrics := rgx_extract.FetchLabels(pathMetric[2], line.Text)
-			prometheus_metrics.InitMetric(metrics)
+			prometheus_metrics.UpdateMetric(metrics, registredMetrics)
 			//metricDetail := GetLogInf(line.Text)
 			//logmetric.LogGaugeVec(metricDetail)
 		}
