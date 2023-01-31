@@ -1,7 +1,6 @@
 package rgx_extract
 
 import (
-	"fmt"
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"regexp"
@@ -10,22 +9,19 @@ import (
 
 func FetchLabels(patternString, logInf string) map[string]string {
 	pattern := regexp.MustCompile(patternString)
-	//for _, name := range pattern.SubexpNames()[1:] {
-	//	fmt.Println("type of elements --> ", string(name[0]))
-	//}
 	rslt := pattern.FindStringSubmatch(logInf)[1:]
 	groupNames := pattern.SubexpNames()[1:]
 	metricsLabelsValues := map[string]string{}
 	for indx, val := range groupNames {
 		metricsLabelsValues[val] = rslt[indx]
 	}
-	fmt.Println("result ---> \n", metricsLabelsValues)
 	return metricsLabelsValues
 }
 
 type Metric struct {
 	Gauge   *prometheus.GaugeVec
 	Counter *prometheus.CounterVec
+	// can add here more metric types
 }
 
 var Metrics = map[string]Metric{}
@@ -82,9 +78,9 @@ func FetchGroups(rgxPattern string) map[string]Metric {
 				if err != nil {
 					log.Fatal("couldn't register metric because: \n", err)
 				}
+				// can add here additional metric types cases
 			}
 		}
 	}
-	fmt.Println("result metrics --> \n", Metrics)
 	return Metrics
 }

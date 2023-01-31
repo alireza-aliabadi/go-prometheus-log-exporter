@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/spf13/cobra"
 	"log"
 	rwfiles "logprom/internal"
@@ -47,15 +46,7 @@ var rootCmd = &cobra.Command{
 	Short: "call logs exporter function for automation",
 	Run: func(cmd *cobra.Command, args []string) {
 		go func() {
-			//for {
-			//	args := env.GetLogName()
-			//	for _, val := range args {
-			//		methodCaller(val, path, regex)
-			//	}
-			//	time.Sleep(2 * time.Second)
-			//}
 			envInf := env.GetEnvValues()
-			fmt.Println(envInf.Logs, "\n", envInf.Confs)
 			for _, requiredLog := range envInf.Logs {
 				for _, logConfig := range envInf.Confs {
 					if requiredLog == logConfig.Name {

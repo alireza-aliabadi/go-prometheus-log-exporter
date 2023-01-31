@@ -2,10 +2,9 @@ version: "3.8"
 
 services:
   go-exporter:
-    image: jahad_golang:1.0
+    image: golangprom-exporter:1.0
     pull_policy: if_not_present
-    container_name: jahad_go_exporter
-    restart: unless-stopped
+    container_name: logs_go_exporter
     volumes:
       - ../logs:/logs
       - .:/app
@@ -15,7 +14,8 @@ services:
   prometheus-go-exporter:
     image: prom/prometheus:v2.41.0
     pull_policy: if_not_present
-    container_name: jahad_prometheus
+    container_name: logs_prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
     volumes:
@@ -27,7 +27,7 @@ services:
     image: grafana/grafana:9.3.2
     pull_policy: if_not_present
     restart: unless-stopped
-    container_name: jahad_grafana
+    container_name: logs_grafana
     environment:
       - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/grafana-preconfig.json
     volumes:
