@@ -4,14 +4,19 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"log"
 	"regexp"
+	"sort"
 	"strings"
 )
 
 func FetchLabels(patternString, logInf string) map[string]string {
 	pattern := regexp.MustCompile(patternString)
-	rslt := pattern.FindStringSubmatch(logInf)[1:]
-	groupNames := pattern.SubexpNames()[1:]
 	metricsLabelsValues := map[string]string{}
+	rslt := pattern.FindStringSubmatch(logInf)
+	if rslt == nil {
+		return nil
+	}
+	rslt = rslt[1:]
+	groupNames := pattern.SubexpNames()[1:]
 	for indx, val := range groupNames {
 		metricsLabelsValues[val] = rslt[indx]
 	}
@@ -32,6 +37,9 @@ func FetchGroups(rgxPattern string) map[string]Metric {
 	pattern := regexp.MustCompile(rgxPattern)
 	groupsArray := pattern.SubexpNames()[1:]
 	for _, group := range groupsArray {
+		if group == "" {
+			continue
+		}
 		groupDetail := strings.Split(group, "_")
 		typeValue := groupDetail[0]
 		nameValue := groupDetail[1]
@@ -46,6 +54,7 @@ func FetchGroups(rgxPattern string) map[string]Metric {
 						labelsList = append(labelsList, detail[2])
 					}
 				}
+				sort.Strings(labelsList)
 				Metrics[nameValue] = Metric{
 					Gauge: prometheus.NewGaugeVec(
 						prometheus.GaugeOpts{

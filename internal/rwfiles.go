@@ -22,7 +22,7 @@ func ReadFile(pathMetric ...string) {
 		Follow: true,
 		Location: &tail.SeekInfo{
 			Offset: int64(0),
-			Whence: io.SeekEnd,
+			Whence: io.SeekStart,
 		},
 		ReOpen: true,
 	})
@@ -33,19 +33,25 @@ func ReadFile(pathMetric ...string) {
 	case "log":
 		for line := range t.Lines {
 			metrics := rgx_extract.FetchLabels(pathMetric[2], line.Text)
-			prometheus_metrics.UpdateMetric(metrics, registredMetrics)
+			if metrics != nil {
+				prometheus_metrics.UpdateMetric(metrics, registredMetrics)
+			}
 		}
 	// add other metrics here as new case
 	case "error-count":
 		for line := range t.Lines {
 			metrics := rgx_extract.FetchLabels(pathMetric[2], line.Text)
-			prometheus_metrics.UpdateMetric(metrics, registredMetrics)
+			if metrics != nil {
+				prometheus_metrics.UpdateMetric(metrics, registredMetrics)
+			}
 		}
 
 	default:
 		for line := range t.Lines {
 			metrics := rgx_extract.FetchLabels(pathMetric[2], line.Text)
-			prometheus_metrics.UpdateMetric(metrics, registredMetrics)
+			if metrics != nil {
+				prometheus_metrics.UpdateMetric(metrics, registredMetrics)
+			}
 		}
 	}
 }

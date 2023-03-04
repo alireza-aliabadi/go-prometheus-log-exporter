@@ -3,12 +3,18 @@ package prometheus_metrics
 import (
 	"log"
 	"logprom/internal/regex_extractor"
+	"sort"
 	"strconv"
 	"strings"
 )
 
 func UpdateMetric(metrics map[string]string, registredMetrics map[string]rgx_extract.Metric) {
-	for name := range metrics {
+	labelNames := make([]string, 0, len(metrics))
+	for key := range metrics {
+		labelNames = append(labelNames, key)
+	}
+	sort.Strings(labelNames)
+	for _, name := range labelNames {
 		inf := strings.Split(name, "_")
 		typeValue := inf[0]
 		nameValue := inf[1]
@@ -17,7 +23,7 @@ func UpdateMetric(metrics map[string]string, registredMetrics map[string]rgx_ext
 			switch metricType {
 			case "gauge":
 				labelsValuesList := []string{}
-				for labelName := range metrics {
+				for _, labelName := range labelNames {
 					detail := strings.Split(labelName, "_")
 					if detail[0] == "L" && detail[1] == nameValue {
 						labelsValuesList = append(labelsValuesList, metrics[labelName])
@@ -32,7 +38,7 @@ func UpdateMetric(metrics map[string]string, registredMetrics map[string]rgx_ext
 				myMetric.Gauge.WithLabelValues(labelsValuesList...).Set(parsedMetricValue)
 			case "counter":
 				labelsValuesList := []string{}
-				for labelName := range metrics {
+				for _, labelName := range labelNames {
 					detail := strings.Split(labelName, "_")
 					if detail[0] == "L" && detail[1] == nameValue {
 						labelsValuesList = append(labelsValuesList, metrics[labelName])

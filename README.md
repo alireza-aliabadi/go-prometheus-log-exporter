@@ -28,7 +28,7 @@ log example based on previous regex pattern:
 
 generated metric example:
 
-<img src="documentation-images/metrics-result-sample.png" alt="registred metric example">
+<img src="documentation-images/result.png" alt="registred metric example">
 
 ## Usage
 <hr>
