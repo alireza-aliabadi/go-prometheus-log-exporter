@@ -18,7 +18,7 @@ logs:
 confs:
   - name: "response"
     file: "../logs/responses.log"
-    regex: "path:(?P<L_responseTime_path>[^|]*).*response_time:(?P<M_responseTime_gauge>[^|]*).*status:(?P<L_responseTime_status>[^|]*)"
+    regex: 'path:(?P<L_responseTime_path>[^|]*).*response_time:(?P<M_responseTime_gauge>[^|]*).*status:(?P<L_responseTime_status>[^|]*)'
 ```
 log example based on previous regex pattern:
 
@@ -34,7 +34,8 @@ generated metric example:
 <hr>
 
 ### Prerequisite
-1. Build required docker image for exporter : 
+1. clone the project
+2. Build required docker image for exporter : 
 
     run this command to build "_golangprom-exporter:1.0_" image from dockerfile
 
@@ -42,10 +43,16 @@ generated metric example:
     docker build -t golangprom-exporter:1.0 .
     ```
    > ! you  can tag image to any name you would but you have to change image name of _go-exporter_ service in compose file after that.
-2. Install docker-compose
-3. Prepare env yaml file
+3. Install docker-compose
+4. Prepare env yaml file acording to [***env structure***](#env-structure)
+
+   regex groups definition role: 
+   > - *metrics*: M_< metric name >
+   > - *labels*: L_< metric name >_< label name >
+   
+   **NOTE**: define *regex* patten inside `''` to avoid getting *unknown escape character* error
 > NOTE : you can skip next configurations and use default configurations of project
-4. Prepare prometheus configs yaml file (optional) :          
+5. Prepare prometheus configs yaml file (optional) :          
     as example:
     ```
    global:
@@ -63,10 +70,10 @@ generated metric example:
           - targets: ["go-exporter:3030"] # address of exporter service
    ```
 if want to use pre-configured grafana dashboard continue these steps
-5. Prepare grafana datasource config file (optional) :          
+6. Prepare grafana datasource config file (optional) :          
    define prometheus instance to fetch data. change parameters in _grafana/datasources/datasource.yml_ to your desire config or just edit _url of prometheus instance_
     > url: http://prometheus-go-exporter:9090
-6. Prepare grafana dashboard config file (optional) :       
+7. Prepare grafana dashboard config file (optional) :       
    *  _grafana/datasources/dashboards/dashboard.yml_ : specify datasource which defined in previous step to read visualization data from it.     
    as example:
    ```
