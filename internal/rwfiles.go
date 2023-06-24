@@ -13,7 +13,7 @@ func ReadFile(pathMetric ...string) {
 	metric := pathMetric[1]
 	registredMetrics := rgx_extract.FetchGroups(pathMetric[2])
 	if metric == "" {
-		metric = "login" // default metric
+		metric = "log" // default metric
 	}
 	if len(pathMetric) > 3 {
 		log.Fatal("extra parameters are given, only needed prameters are: path, metric")
