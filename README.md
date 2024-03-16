@@ -6,7 +6,9 @@
 fetch and register metrics from configs from "_env.yml_" file. then set and update value of metrics based on
 logs line by line once new log is added.
 
-***Note:*** *you see an ***.env*** file too. you can use it when you don't want to use yml based env file or just want to have a single ".env" file for the whole your project. so you can use ***.env*** file and change code to use ".env" based methods which are defined in ***internal/env/env.go**** 
+***Note:*** *you see an ***.env*** file too. you can use it when you don't want to use yml based env file or just want to have a single ".env" file for the whole your project. so you can use ***.env*** file and change code to use ".env" based methods which are defined in ***"internal/env/env.go"****
+
+***Note:*** *by default it uses **Guage** metric type (more common) but you can add other metric types in **"internal/logmetrics/logmetrics.go"** as you wish*
 
 ### env structure:
     
